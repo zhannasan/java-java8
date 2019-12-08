@@ -2,12 +2,17 @@ package java8.ex08;
 
 import org.junit.Test;
 
+import java8.data.domain.Customer;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
@@ -69,14 +74,18 @@ public class Stream_08_Test {
 
         // TODO utiliser la méthode java.nio.file.Files.lines pour créer un stream de lignes du fichier naissances_depuis_1900.csv
         // Le bloc try(...) permet de fermer (close()) le stream après utilisation
-        try (Stream<String> lines = null) {
-
+    	Path path = Paths.get(NAISSANCES_DEPUIS_1900_CSV);
+        try (Stream<String> lines = Files.lines(path)) {
+        	
             // TODO construire une MAP (clé = année de naissance, valeur = somme des nombres de naissance de l'année)
-            Map<String, Integer> result = null;
-
-
+            Map<String, Integer> result = lines.map(line -> line.split(";")).skip(1)
+          
+            		//.collect(Collectors.toMap( line->line[1], Collectors.summarizingInt(nombreNaissance)));
+            		
+            		
             assertThat(result.get("2015"), is(8097));
             assertThat(result.get("1900"), is(5130));
+            lines.close();
         }
     }
 
@@ -85,7 +94,7 @@ public class Stream_08_Test {
 
         // TODO utiliser la méthode java.nio.file.Files.lines pour créer un stream de lignes du fichier naissances_depuis_1900.csv
         // Le bloc try(...) permet de fermer (close()) le stream après utilisation
-        try (Stream<String> lines = null) {
+        try (Stream<String> lines = Files.lines(path)) {
 
             // TODO trouver l'année où il va eu le plus de nombre de naissance
             Optional<Naissance> result = null;

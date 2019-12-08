@@ -36,12 +36,12 @@ public class Stream_07_Test {
 
     // TODO créer une fonction List<Pizza> -> List<Pizza>
     // TODO seules les pizzas ayant un prix >= 1000 sont conservées
-    Function<List<Pizza>, List<Pizza>> filterPizza = null;
+    Function<List<Pizza>, List<Pizza>> filterPizza = list->list.stream().filter(p->p.getPrice()>=1000).collect(Collectors.toList());
 
     // TODO créer une fonction List<Pizza> -> List<Pizza>
     // TODO seules les pizzas ayant un prix >= 1000 sont conservées
     // TODO .parallel()
-    Function<List<Pizza>, List<Pizza>> parallelFilterPizza = null;
+    Function<List<Pizza>, List<Pizza>> parallelFilterPizza = list->list.stream().parallel().filter(p->p.getPrice()>=1000).collect(Collectors.toList());
 
     // TODO exécuter le test pour visualiser le temps d'exécution
     @Test
@@ -49,10 +49,11 @@ public class Stream_07_Test {
         arraylist_vs_linkedlist(filterPizza);
     }
 
-    // Que constatez-vous ?
+    // Que constatez-vous ? le temps d'execution varie a chaque fois, parfois l'arrayList est plus vite, 
+    // donc je ne pense pas qu'il y a une difference
     // De mon côté :
-    // INFO: arrayList=21 ms
-    // INFO: linkedList=21 ms
+    // INFO: arrayList=21 ms vs INFOS: arrayList=17 ms
+    // INFO: linkedList=21 ms vs INFOS: linkedList=16 ms 
 
 
     // TODO exécuter le test pour visualiser le temps d'exécution
@@ -61,9 +62,10 @@ public class Stream_07_Test {
         arraylist_vs_linkedlist(parallelFilterPizza);
     }
 
-    // Que constatez-vous ?
-    // INFO: arrayList=15 ms
-    // INFO: linkedList=83 ms
+    // Que constatez-vous ? c'est interessant que si on fait les deux tests , dans celui-ci le resultat
+    // pour linkedList est de 28 ms
+    // INFO: arrayList=15 ms vs INFOS: arrayList=10 ms
+    // INFO: linkedList=83 ms vs INFOS: linkedList=55 ms
 
     public void arraylist_vs_linkedlist(Function<List<Pizza>, List<Pizza>> fn) throws Exception {
 
