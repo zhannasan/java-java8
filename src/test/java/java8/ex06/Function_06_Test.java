@@ -26,10 +26,10 @@ public class Function_06_Test {
 
     @Test
     public void test_supplier_formatAge() throws Exception {
-    	 List<Person> personList = Data.buildPersonList();
+    	Supplier<Person> p = ()-> new Person("Aline", "Deschamps", 35, "pass");
     	
         // TODO compléter le test unitaire pour qu'il soit passant
-        String result = personList.stream().forEach(p->{formatAge(()->p)});
+        String result = formatAge(p);
 
         assert result.equals("[age=35]");
     }
