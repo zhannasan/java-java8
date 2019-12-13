@@ -2,13 +2,21 @@ package java8.ex08;
 
 import org.junit.Test;
 
+import java8.data.Data;
 import java8.data.domain.Customer;
+import java8.data.domain.Pizza;
 
+import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -70,17 +78,20 @@ public class Stream_08_Test {
 
 
     @Test
-    public void test_group() throws IOException {
+    public void test_group() throws IOException, URISyntaxException {
 
         // TODO utiliser la méthode java.nio.file.Files.lines pour créer un stream de lignes du fichier naissances_depuis_1900.csv
         // Le bloc try(...) permet de fermer (close()) le stream après utilisation
-    	Path path = Paths.get(NAISSANCES_DEPUIS_1900_CSV);
+    	URL file = getClass().getClassLoader().getResource("naissances_depuis_1900.csv");
+    	Path path = Paths.get(file.toURI());
         try (Stream<String> lines = Files.lines(path)) {
         	
-            // TODO construire une MAP (clé = année de naissance, valeur = somme des nombres de naissance de l'année)
-            Map<String, Integer> result = lines.map(line -> line.split(";")).skip(1)
-          
-            		//.collect(Collectors.toMap( line->line[1], Collectors.summarizingInt(nombreNaissance)));
+			// TODO construire une MAP (clé = année de naissance, valeur = somme des nombres de naissance de l'année)
+            Map<String, Integer> result = lines.skip(1).map(line -> {
+            	String[] strings = line.split(";");
+            	Naissance naissance = new Naissance(strings[1], strings[2], Integer.valueOf(strings[3]));
+            	return naissance;
+            }).collect(groupingBy(Naissance::getAnnee, summingInt(Naissance::getNombre)));
             		
             		
             assertThat(result.get("2015"), is(8097));
@@ -90,32 +101,44 @@ public class Stream_08_Test {
     }
 
     @Test
-    public void test_max() throws IOException {
+    public void test_max() throws IOException, URISyntaxException {
 
         // TODO utiliser la méthode java.nio.file.Files.lines pour créer un stream de lignes du fichier naissances_depuis_1900.csv
         // Le bloc try(...) permet de fermer (close()) le stream après utilisation
+    	URL file = getClass().getClassLoader().getResource("naissances_depuis_1900.csv");
+    	Path path = Paths.get(file.toURI());
         try (Stream<String> lines = Files.lines(path)) {
 
-            // TODO trouver l'année où il va eu le plus de nombre de naissance
-            Optional<Naissance> result = null;
-
-
+            // TODO trouver l'année ou jour??? où il va eu le plus de nombre de naissance
+            Optional<Naissance> result = lines.skip(1).map(line ->{
+            	String[] strings = line.split(";");
+            	Naissance naissance = new Naissance(strings[1], strings[2], Integer.valueOf(strings[3]));
+            	return naissance;}).max(Comparator.comparingInt(Naissance::getNombre));
+          
+          
             assertThat(result.get().getNombre(), is(48));
             assertThat(result.get().getJour(), is("19640228"));
             assertThat(result.get().getAnnee(), is("1964"));
+            lines.close();
         }
     }
 
     @Test
-    public void test_collectingAndThen() throws IOException {
+    public void test_collectingAndThen() throws IOException, URISyntaxException {
         // TODO utiliser la méthode java.nio.file.Files.lines pour créer un stream de lignes du fichier naissances_depuis_1900.csv
         // Le bloc try(...) permet de fermer (close()) le stream après utilisation
-        try (Stream<String> lines = null) {
+    	URL file = getClass().getClassLoader().getResource("naissances_depuis_1900.csv");
+    	Path path = Paths.get(file.toURI());
+        try (Stream<String> lines = Files.lines(path)) {
 
             // TODO construire une MAP (clé = année de naissance, valeur = maximum de nombre de naissances)
             // TODO utiliser la méthode "collectingAndThen" à la suite d'un "grouping"
-            Map<String, Naissance> result = null;
-
+            Map<String, Naissance> result =  lines.skip(1).map(line ->{
+            	String[] strings = line.split(";");
+            	Naissance naissance = new Naissance(strings[1], strings[2], Integer.valueOf(strings[3]));
+            	return naissance;})
+            .collect(groupingBy(Naissance::getAnnee, collectingAndThen(maxBy(Comparator.comparingInt(Naissance::getNombre)), Optional::get)));
+           
             assertThat(result.get("2015").getNombre(), is(38));
             assertThat(result.get("2015").getJour(), is("20150909"));
             assertThat(result.get("2015").getAnnee(), is("2015"));
@@ -133,11 +156,13 @@ public class Stream_08_Test {
     @Test
     public void test_pizzaData() throws IOException {
         // TODO utiliser la méthode java.nio.file.Files.list pour parcourir un répertoire
-
+    	//---- il ný a pas de repertoire Pizza :( du coup j'utilise les donnees qu'on a
+    	
+    	List<Pizza> pizzas = new Data().getPizzas();
         // TODO trouver la pizza la moins chère
-        String pizzaNamePriceMin = null;
+        Optional<Pizza> pizzaNamePriceMin = pizzas.stream().min(Comparator.comparingDouble(Pizza::getPrice));
 
-        assertThat(pizzaNamePriceMin, is("L'indienne"));
+        assertThat(pizzaNamePriceMin.get().getName(), is("L'indienne"));
 
     }
 
