@@ -48,4 +48,8 @@ public class Person {
     public void setPassword(String password) {
         this.password = password;
     }
+    
+    public String toString(){
+    	return this.firstname+" "+this.lastname+" "+this.age+" "+this.password;
+    }
 }
